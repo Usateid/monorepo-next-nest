@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   Get,
+  Put,
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
@@ -18,10 +19,11 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
   VerifyEmailDto,
+  UpdateProfileDto,
 } from "./dto/auth.dto";
 import { Public } from "./decorators/public.decorator";
 import { CurrentUser } from "./decorators/current-user.decorator";
-import type { User } from "@monorepo/db";
+import type { User, UserWithProfile } from "@monorepo/db";
 
 @Controller("api/auth")
 export class AuthController {
@@ -29,24 +31,8 @@ export class AuthController {
 
   @Public()
   @Post("register")
-  async register(
-    @Body() registerDto: RegisterDto,
-    @Res({ passthrough: true }) res: Response
-  ) {
-    const result = await this.authService.register(registerDto);
-
-    // Auto-login: set access token cookie
-    res.cookie("access_token", result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000, // 15 minutes
-    });
-
-    return {
-      message: result.message,
-      user: result.user,
-    };
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 
   @Public()
@@ -59,7 +45,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     const result = await this.authService.login(
-      req.user as Omit<User, "password">,
+      req.user as UserWithProfile,
       loginDto.rememberMe
     );
 
@@ -149,7 +135,16 @@ export class AuthController {
 
   @Get("me")
   async me(@CurrentUser() user: Omit<User, "password">) {
-    return { user };
+    const userWithProfile = await this.authService.getUserWithProfile(user.id);
+    return { user: userWithProfile };
+  }
+
+  @Put("profile")
+  async updateProfile(
+    @CurrentUser() user: Omit<User, "password">,
+    @Body() updateProfileDto: UpdateProfileDto
+  ) {
+    return this.authService.updateProfile(user.id, updateProfileDto);
   }
 
   @Public()

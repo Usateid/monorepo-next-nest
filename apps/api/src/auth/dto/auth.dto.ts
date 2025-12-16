@@ -22,3 +22,10 @@ export class ResetPasswordDto {
 export class VerifyEmailDto {
   token: string;
 }
+
+export class UpdateProfileDto {
+  name?: string;
+  birthDate?: string;
+  address?: string;
+  fiscalCode?: string;
+}

@@ -9,13 +9,15 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
-import type { NewUser } from "@monorepo/db";
+import { type NewUser, UserRole } from "@monorepo/db";
+import { Roles } from "../auth/decorators/roles.decorator";
 
 @Controller("api/users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @Roles(UserRole.ADMIN)
   async findAll() {
     return this.usersService.findAll();
   }

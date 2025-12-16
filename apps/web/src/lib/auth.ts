@@ -2,13 +2,24 @@ import { cookies } from "next/headers";
 
 const API_URL = process.env.API_URL || "http://localhost:3001";
 
+export interface UserProfile {
+  id: string;
+  userId: string;
+  name: string;
+  birthDate: string | null;
+  address: string | null;
+  fiscalCode: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface User {
   id: string;
-  name: string;
   email: string;
   role: "user" | "admin";
   emailVerified: boolean;
   createdAt: string;
+  profile: UserProfile | null;
 }
 
 export async function getSession(): Promise<User | null> {

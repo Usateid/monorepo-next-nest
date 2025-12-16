@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +15,9 @@ import {
 } from "@/components/ui/card";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,14 +57,32 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto-login successful, redirect to home
-      router.push("/");
-      router.refresh();
+      // Show success message
+      setSuccess(true);
     } catch {
       setError("Errore di connessione al server");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Registrazione completata!</CardTitle>
+          <CardDescription>
+            Ti abbiamo inviato un&apos;email di verifica. Controlla la tua
+            casella di posta e clicca sul link per attivare il tuo account.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="justify-center">
+          <Button asChild>
+            <Link href="/login">Vai al login</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
   }
 
   return (

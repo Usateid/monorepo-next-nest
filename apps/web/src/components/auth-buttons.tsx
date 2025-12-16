@@ -29,13 +29,18 @@ export function AuthButtons({ user }: AuthButtonsProps) {
     return (
       <div className="flex items-center gap-4">
         <span className="text-sm text-muted-foreground">
-          Ciao, <strong>{user.name}</strong>
+          Ciao, <strong>{user.profile?.name || "Utente"}</strong>
           {user.role === "admin" && (
             <span className="ml-2 rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">
               Admin
             </span>
           )}
         </span>
+        <Link href="/profile">
+          <Button variant="ghost" size="sm">
+            Profilo
+          </Button>
+        </Link>
         <Button variant="outline" onClick={handleLogout}>
           Logout
         </Button>

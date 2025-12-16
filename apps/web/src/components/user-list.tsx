@@ -1,15 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUsers } from "@/app/actions";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
-}
+import type { User as UserType } from "@monorepo/db";
 
 export async function UserList() {
-  const users: User[] = await getUsers();
+  const { users, success, message } = await getUsers();
 
   return (
     <Card className="w-full max-w-md">
@@ -17,7 +11,8 @@ export async function UserList() {
         <CardTitle>Utenti ({users.length})</CardTitle>
       </CardHeader>
       <CardContent>
-        {users.length === 0 ? (
+        {!success && <p className="text-destructive text-sm">{message}</p>}
+        {success && users.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             Nessun utente presente
           </p>

@@ -9,12 +9,13 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
-import { db, users, eq } from "@monorepo/db";
-import type { User } from "@monorepo/db";
+import { db, users, userProfiles, eq } from "@monorepo/db";
+import type { UserWithProfile } from "@monorepo/db";
 import {
   RegisterDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  UpdateProfileDto,
 } from "./dto/auth.dto";
 import { EmailService } from "./email.service";
 
@@ -29,12 +30,19 @@ export class AuthService {
   async validateUser(
     email: string,
     password: string
-  ): Promise<Omit<User, "password"> | null> {
+  ): Promise<UserWithProfile | null> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password: _, ...result } = user;
-      return result;
+      const { password: _, ...userWithoutPassword } = user;
+
+      // Get profile
+      const [profile] = await db
+        .select()
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, user.id));
+
+      return { ...userWithoutPassword, profile: profile || null };
     }
     return null;
   }
@@ -59,15 +67,23 @@ export class AuthService {
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create user
+    // Create user (auth data)
     const [user] = await db
       .insert(users)
       .values({
-        name,
         email,
         password: hashedPassword,
         emailVerificationToken: verificationToken,
         emailVerificationExpires: verificationExpires,
+      })
+      .returning();
+
+    // Create user profile (personal data)
+    const [profile] = await db
+      .insert(userProfiles)
+      .values({
+        userId: user.id,
+        name,
       })
       .returning();
 
@@ -80,24 +96,19 @@ export class AuthService {
 
     const { password: _, ...userWithoutPassword } = user;
 
-    // Auto-login: generate tokens
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: "15m" });
-
     return {
-      message: "Registrazione completata",
-      user: userWithoutPassword,
-      accessToken,
+      message: "Registrazione completata. Verifica la tua email per accedere.",
+      user: { ...userWithoutPassword, profile },
     };
   }
 
-  async login(user: Omit<User, "password">, rememberMe: boolean = false) {
+  async login(user: UserWithProfile, rememberMe: boolean = false) {
     // TODO: Riabilitare quando il servizio email sarà configurato
-    // if (!user.emailVerified) {
-    //   throw new UnauthorizedException(
-    //     "Email non verificata. Controlla la tua casella di posta."
-    //   );
-    // }
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(
+        "Email non verificata. Controlla la tua casella di posta."
+      );
+    }
 
     const payload = { sub: user.id, email: user.email, role: user.role };
 
@@ -170,6 +181,12 @@ export class AuthService {
       };
     }
 
+    // Get profile for user name
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, user.id));
+
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
@@ -184,7 +201,7 @@ export class AuthService {
 
     await this.emailService.sendPasswordResetEmail(
       email,
-      user.name,
+      profile?.name || "Utente",
       resetToken
     );
 
@@ -269,6 +286,12 @@ export class AuthService {
       throw new BadRequestException("Email già verificata");
     }
 
+    // Get profile for user name
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, user.id));
+
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
@@ -283,10 +306,93 @@ export class AuthService {
 
     await this.emailService.sendVerificationEmail(
       email,
-      user.name,
+      profile?.name || "Utente",
       verificationToken
     );
 
     return { message: "Email di verifica inviata" };
+  }
+
+  async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+
+    if (!existingUser) {
+      throw new NotFoundException("Utente non trovato");
+    }
+
+    // Check if profile exists
+    const [existingProfile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+
+    const profileData: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+
+    if (updateProfileDto.name !== undefined) {
+      profileData.name = updateProfileDto.name;
+    }
+
+    if (updateProfileDto.birthDate !== undefined) {
+      profileData.birthDate = updateProfileDto.birthDate;
+    }
+
+    if (updateProfileDto.address !== undefined) {
+      profileData.address = updateProfileDto.address;
+    }
+
+    if (updateProfileDto.fiscalCode !== undefined) {
+      profileData.fiscalCode = updateProfileDto.fiscalCode;
+    }
+
+    let profile;
+    if (existingProfile) {
+      // Update existing profile
+      const [updatedProfile] = await db
+        .update(userProfiles)
+        .set(profileData)
+        .where(eq(userProfiles.userId, userId))
+        .returning();
+      profile = updatedProfile;
+    } else {
+      // Create new profile (should not happen normally)
+      const [newProfile] = await db
+        .insert(userProfiles)
+        .values({
+          userId,
+          name: updateProfileDto.name || "Utente",
+          ...profileData,
+        })
+        .returning();
+      profile = newProfile;
+    }
+
+    const { password: _, ...userWithoutPassword } = existingUser;
+
+    return {
+      message: "Profilo aggiornato con successo",
+      user: { ...userWithoutPassword, profile },
+    };
+  }
+
+  async getUserWithProfile(userId: string): Promise<UserWithProfile | null> {
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+
+    if (!user) {
+      return null;
+    }
+
+    const { password: _, ...userWithoutPassword } = user;
+
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+
+    return { ...userWithoutPassword, profile: profile || null };
   }
 }
