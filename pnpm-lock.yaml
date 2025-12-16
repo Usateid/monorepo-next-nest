@@ -111,9 +111,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@monorepo/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@monorepo/shared':
         specifier: workspace:*
         version: link:../../packages/shared

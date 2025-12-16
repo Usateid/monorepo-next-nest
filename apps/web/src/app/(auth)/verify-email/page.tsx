@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -73,5 +73,21 @@ export default function VerifyEmailPage() {
         </CardFooter>
       )}
     </Card>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">⏳ Caricamento...</CardTitle>
+          </CardHeader>
+        </Card>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
