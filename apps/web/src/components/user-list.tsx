@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUsers } from "@/app/actions";
-import type { User as UserType } from "@monorepo/db";
 
 export async function UserList() {
   const { users, success, message } = await getUsers();
@@ -23,7 +22,9 @@ export async function UserList() {
                 key={user.id}
                 className="flex flex-col gap-1 rounded-lg border p-3"
               >
-                <span className="font-medium">{user.name}</span>
+                <span className="font-medium">
+                  {user.profile?.name || user.email}
+                </span>
                 <span className="text-sm text-muted-foreground">
                   {user.email}
                 </span>
