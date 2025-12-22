@@ -62,11 +62,13 @@ export class UsersController {
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
   async create(@Body() createUserDto: NewUser) {
     return this.usersService.create(createUserDto);
   }
 
   @Put(":id")
+  @Roles(UserRole.ADMIN)
   async update(
     @Param("id") id: string,
     @Body() updateUserDto: Partial<NewUser>
@@ -79,6 +81,7 @@ export class UsersController {
   }
 
   @Delete(":id")
+  @Roles(UserRole.ADMIN)
   async delete(@Param("id") id: string) {
     const deleted = await this.usersService.delete(id);
     if (!deleted) {

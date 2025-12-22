@@ -187,9 +187,10 @@ pnpm dlx shadcn@latest add button --cwd apps/web
 
 ```typescript
 // packages/db/src/schema.ts
+
+// Tabella users - Solo dati di autenticazione
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   role: roleEnum("role").default("user").notNull(), // 'user' | 'admin'
@@ -205,6 +206,20 @@ export const users = pgTable("users", {
   
   // Remember me
   refreshToken: text("refresh_token"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Tabella user_profiles - Dati anagrafici (separati per privacy)
+export const userProfiles = pgTable("user_profiles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().unique().references(() => users.id),
+  
+  name: text("name").notNull(),
+  birthDate: date("birth_date"),
+  address: text("address"),
+  fiscalCode: text("fiscal_code"),
   
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

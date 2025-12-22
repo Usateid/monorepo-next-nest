@@ -4,7 +4,6 @@
 export enum UserRole {
   USER = "user",
   ADMIN = "admin",
-  TEACHER = "teacher",
 }
 
 // DTO types
