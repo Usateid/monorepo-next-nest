@@ -1,66 +1,66 @@
-# 🚀 Monorepo
+# Monorepo
 
-Una monorepo fullstack con **pnpm workspace**, **Next.js 15**, **NestJS**, **Drizzle ORM** e autenticazione completa.
+A fullstack monorepo with **pnpm workspace**, **Next.js 15**, **NestJS**, **Drizzle ORM** and complete authentication.
 
-## 📁 Struttura
+## Structure
 
 ```
 monorepo/
 ├── apps/
-│   ├── web/                    # Next.js 15 (frontend) - porta 3000
+│   ├── web/                    # Next.js 15 (frontend) - port 3000
 │   │   ├── src/
 │   │   │   ├── app/            # App Router
-│   │   │   │   ├── (auth)/     # Route gruppo auth (login, register, etc.)
+│   │   │   │   ├── (auth)/     # Auth route group (login, register, etc.)
 │   │   │   │   └── page.tsx    # Home page
-│   │   │   ├── components/     # Componenti React
-│   │   │   │   └── ui/         # Componenti shadcn/ui
+│   │   │   ├── components/     # React components
+│   │   │   │   └── ui/         # shadcn/ui components
 │   │   │   ├── lib/            # Utilities (auth, utils)
-│   │   │   └── middleware.ts   # Protezione route
-│   │   └── components.json     # Config shadcn/ui
+│   │   │   └── middleware.ts   # Route protection
+│   │   └── components.json     # shadcn/ui config
 │   │
-│   └── api/                    # NestJS (backend) - porta 3001
+│   └── api/                    # NestJS (backend) - port 3001
 │       └── src/
-│           ├── auth/           # Modulo autenticazione
+│           ├── auth/           # Authentication module
 │           │   ├── decorators/ # @CurrentUser, @Public, @Roles
 │           │   ├── guards/     # JwtAuthGuard, RolesGuard
 │           │   ├── strategies/ # JWT, Local (Passport)
 │           │   └── dto/        # Data Transfer Objects
-│           └── users/          # Modulo utenti
+│           └── users/          # Users module
 │
 ├── packages/
-│   ├── shared/                 # Codice condiviso (utilities)
+│   ├── shared/                 # Shared code (utilities)
 │   └── db/                     # Database (Drizzle ORM)
 │       ├── src/
-│       │   ├── schema.ts       # Schema tabelle
-│       │   ├── client.ts       # Client Drizzle
+│       │   ├── schema.ts       # Table schema
+│       │   ├── client.ts       # Drizzle client
 │       │   └── index.ts        # Exports
-│       └── drizzle.config.ts   # Config migrazioni
+│       └── drizzle.config.ts   # Migrations config
 │
 ├── pnpm-workspace.yaml
 └── package.json
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-| Categoria | Tecnologia |
-|-----------|------------|
+| Category | Technology |
+|----------|------------|
 | **Frontend** | Next.js 15, React 19, Tailwind CSS 4, shadcn/ui |
 | **Backend** | NestJS 10, Passport.js |
 | **Database** | PostgreSQL, Drizzle ORM |
-| **Auth** | JWT, bcrypt, cookie httpOnly |
+| **Auth** | JWT, bcrypt, httpOnly cookie |
 | **Monorepo** | pnpm workspaces, tsup |
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Prerequisiti
+### Prerequisites
 
 - Node.js 18+
 - pnpm 8+
-- PostgreSQL (o Docker)
+- PostgreSQL (or Docker)
 
-### 1. Clona e installa
+### 1. Clone and install
 
 ```bash
 git clone <repo-url>
@@ -68,17 +68,17 @@ cd monorepo
 pnpm install
 ```
 
-### 2. Configura il database
+### 2. Configure the database
 
-**Con Docker:**
+**With Docker:**
 ```bash
 docker run --name postgres -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
 docker exec -it postgres psql -U postgres -c "CREATE DATABASE monorepo;"
 ```
 
-### 3. Configura le variabili d'ambiente
+### 3. Configure environment variables
 
-Crea il file `apps/api/.env`:
+Create the file `apps/api/.env`:
 
 ```env
 DATABASE_URL=postgresql://postgres:mypassword@localhost:5432/monorepo
@@ -86,14 +86,14 @@ JWT_SECRET=your-super-secret-jwt-key-change-in-production
 FRONTEND_URL=http://localhost:3000
 ```
 
-### 4. Esegui le migrazioni
+### 4. Run migrations
 
 ```bash
 cd packages/db
 pnpm db:push
 ```
 
-### 5. Avvia il progetto
+### 5. Start the project
 
 ```bash
 pnpm dev
@@ -104,38 +104,38 @@ pnpm dev
 
 ---
 
-## 💻 Comandi
+## Commands
 
 ### Root
 
-| Comando | Descrizione |
+| Command | Description |
 |---------|-------------|
-| `pnpm dev` | Avvia tutti i servizi in dev mode |
-| `pnpm build` | Build di tutti i package |
-| `pnpm lint` | Linting di tutti i package |
-| `pnpm clean` | Pulisce build e node_modules |
+| `pnpm dev` | Start all services in dev mode |
+| `pnpm build` | Build all packages |
+| `pnpm lint` | Lint all packages |
+| `pnpm clean` | Clean build and node_modules |
 
 ### Database (`packages/db`)
 
-| Comando | Descrizione |
+| Command | Description |
 |---------|-------------|
-| `pnpm db:push` | Applica lo schema al database |
-| `pnpm db:generate` | Genera file migrazione |
-| `pnpm db:migrate` | Esegue le migrazioni |
-| `pnpm db:studio` | Apre Drizzle Studio (GUI) |
+| `pnpm db:push` | Apply schema to database |
+| `pnpm db:generate` | Generate migration file |
+| `pnpm db:migrate` | Run migrations |
+| `pnpm db:studio` | Open Drizzle Studio (GUI) |
 
-### Aggiungere dipendenze
+### Adding dependencies
 
 ```bash
-# A un package specifico
+# To a specific package
 pnpm --filter @monorepo/web add <package>
 pnpm --filter @monorepo/api add <package>
 
-# Alla root (devDependencies)
+# To root (devDependencies)
 pnpm add -D <package> -w
 ```
 
-### Aggiungere componenti shadcn/ui
+### Adding shadcn/ui components
 
 ```bash
 pnpm dlx shadcn@latest add button --cwd apps/web
@@ -143,9 +143,9 @@ pnpm dlx shadcn@latest add button --cwd apps/web
 
 ---
 
-## 🔐 Autenticazione
+## Authentication
 
-### Flusso
+### Flow
 
 ```
 ┌─────────────────┐     POST /auth/login      ┌─────────────────┐
@@ -157,38 +157,38 @@ pnpm dlx shadcn@latest add button --cwd apps/web
 └─────────────────┘                           └─────────────────┘
 ```
 
-### Endpoints Auth
+### Auth Endpoints
 
-| Metodo | Endpoint | Descrizione | Autenticato |
-|--------|----------|-------------|:-----------:|
-| POST | `/api/auth/register` | Registrazione | ❌ |
-| POST | `/api/auth/login` | Login | ❌ |
-| POST | `/api/auth/logout` | Logout | ✅ |
-| GET | `/api/auth/me` | Utente corrente | ✅ |
-| POST | `/api/auth/verify-email` | Verifica email | ❌ |
-| POST | `/api/auth/forgot-password` | Richiedi reset password | ❌ |
-| POST | `/api/auth/reset-password` | Reset password | ❌ |
-| POST | `/api/auth/refresh` | Refresh token | ❌ |
-| POST | `/api/auth/resend-verification` | Reinvia email verifica | ❌ |
+| Method | Endpoint | Description | Authenticated |
+|--------|----------|-------------|:-------------:|
+| POST | `/api/auth/register` | Registration | No |
+| POST | `/api/auth/login` | Login | No |
+| POST | `/api/auth/logout` | Logout | Yes |
+| GET | `/api/auth/me` | Current user | Yes |
+| POST | `/api/auth/verify-email` | Verify email | No |
+| POST | `/api/auth/forgot-password` | Request password reset | No |
+| POST | `/api/auth/reset-password` | Reset password | No |
+| POST | `/api/auth/refresh` | Refresh token | No |
+| POST | `/api/auth/resend-verification` | Resend verification email | No |
 
 ### Features
 
-- ✅ **Registrazione** con auto-login automatico
-- ✅ **Login** con email/password
-- ✅ **Remember Me** (refresh token 7 giorni)
-- ✅ **Password hashing** con bcrypt (10 rounds)
-- ✅ **JWT** in cookie httpOnly (sicuro)
-- ✅ **Ruoli** (user/admin)
-- ✅ **Reset password** con token
-- ✅ **Protezione route** con middleware Next.js
-- ⏸️ **Verifica email** (predisposta, attualmente disabilitata)
+- **Registration** with automatic auto-login
+- **Login** with email/password
+- **Remember Me** (7-day refresh token)
+- **Password hashing** with bcrypt (10 rounds)
+- **JWT** in httpOnly cookie (secure)
+- **Roles** (user/admin)
+- **Password reset** with token
+- **Route protection** with Next.js middleware
+- **Email verification** (ready, currently disabled)
 
-### Schema Database
+### Database Schema
 
 ```typescript
 // packages/db/src/schema.ts
 
-// Tabella users - Solo dati di autenticazione
+// Users table - Authentication data only
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
@@ -211,7 +211,7 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Tabella user_profiles - Dati anagrafici (separati per privacy)
+// User profiles table - Personal data (separated for privacy)
 export const userProfiles = pgTable("user_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().unique().references(() => users.id),
@@ -226,53 +226,53 @@ export const userProfiles = pgTable("user_profiles", {
 });
 ```
 
-### Proteggere Route NestJS
+### Protecting NestJS Routes
 
 ```typescript
-// Route protetta (default - tutte le route sono protette)
+// Protected route (default - all routes are protected)
 @Get('protected')
 getProtected() {
-  return { message: 'Solo utenti autenticati' };
+  return { message: 'Authenticated users only' };
 }
 
-// Route pubblica
+// Public route
 @Public()
 @Get('public')
 getPublic() {
-  return { message: 'Accessibile a tutti' };
+  return { message: 'Accessible to everyone' };
 }
 
-// Solo admin
+// Admin only
 @Roles('admin')
 @Get('admin-only')
 getAdminOnly() {
-  return { message: 'Solo admin' };
+  return { message: 'Admin only' };
 }
 
-// Ottenere l'utente corrente
+// Get current user
 @Get('profile')
 getProfile(@CurrentUser() user: User) {
   return user;
 }
 ```
 
-### Proteggere Route Next.js
+### Protecting Next.js Routes
 
-Le route sono protette dal middleware (`apps/web/src/middleware.ts`):
+Routes are protected by middleware (`apps/web/src/middleware.ts`):
 
 ```typescript
-// Route che richiedono autenticazione
+// Routes that require authentication
 const protectedRoutes = ["/dashboard", "/profile", "/settings"];
 
-// Route che reindirizzano alla home se già autenticati
+// Routes that redirect to home if already authenticated
 const authRoutes = ["/login", "/register", "/forgot-password"];
 ```
 
-### Server Actions e Autenticazione
+### Server Actions and Authentication
 
-Le Server Actions di Next.js vengono eseguite sul server, quindi i cookie del browser non vengono inviati automaticamente all'API.
+Next.js Server Actions run on the server, so browser cookies are not automatically sent to the API.
 
-Per autenticare le chiamate API dalle Server Actions, i cookie vengono passati manualmente:
+To authenticate API calls from Server Actions, cookies are passed manually:
 
 ```typescript
 // apps/web/src/app/actions.ts
@@ -287,72 +287,72 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
   return {};
 }
 
-// Uso nelle chiamate API
+// Usage in API calls
 const authHeaders = await getAuthHeaders();
 const res = await fetch(`${API_URL}/api/users`, {
   headers: authHeaders,
 });
 ```
 
-Questo approccio è **sicuro** perché:
-- Il token viaggia solo server-to-server (Next.js → NestJS)
-- Non viene mai esposto al codice JavaScript del browser
-- Il cookie originale è `httpOnly`
+This approach is **secure** because:
+- The token travels only server-to-server (Next.js -> NestJS)
+- It's never exposed to browser JavaScript code
+- The original cookie is `httpOnly`
 
-### Abilitare la verifica email
+### Enabling Email Verification
 
-La verifica email è predisposta ma disabilitata. Per attivarla:
+Email verification is ready but disabled. To enable it:
 
-1. Configura un provider email in `apps/api/src/auth/email.service.ts`
-2. Rimuovi i commenti in `apps/api/src/auth/auth.service.ts`:
+1. Configure an email provider in `apps/api/src/auth/email.service.ts`
+2. The check in `apps/api/src/auth/auth.service.ts` is already active:
 
 ```typescript
 // async login(...)
 if (!user.emailVerified) {
-  throw new UnauthorizedException("Email non verificata...");
+  throw new UnauthorizedException("Email not verified...");
 }
 ```
 
 ---
 
-## 📦 Packages
+## Packages
 
 ### `@monorepo/web`
 
-App Next.js 15 con:
+Next.js 15 app with:
 - App Router
 - React 19
 - Tailwind CSS 4
 - shadcn/ui (New York style)
-- Server Components e Server Actions
+- Server Components and Server Actions
 
 ### `@monorepo/api`
 
-API NestJS 10 con:
-- Autenticazione JWT + Passport
-- CORS configurato
+NestJS 10 API with:
+- JWT + Passport authentication
+- Configured CORS
 - Cookie parser
-- Validazione con decorators
+- Validation with decorators
 
 ### `@monorepo/db`
 
-Database layer con:
+Database layer with:
 - Drizzle ORM
 - PostgreSQL
-- Schema TypeScript
-- Tipi inferiti ed esportati
+- TypeScript schema
+- Inferred and exported types
 
 ### `@monorepo/shared`
 
-Utilities condivise:
-- Funzioni helper
-- Tipi TypeScript comuni
+Shared utilities:
+- Helper functions
+- Common TypeScript types
 
 ---
 
-## 🔧 Configurazione
+## Configuration
 
-### Variabili d'ambiente
+### Environment Variables
 
 **`apps/api/.env`**
 
@@ -363,15 +363,15 @@ DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 # JWT
 JWT_SECRET=your-super-secret-key-min-32-chars
 
-# Frontend URL (per email)
+# Frontend URL (for emails)
 FRONTEND_URL=http://localhost:3000
 ```
 
 ### CORS
 
-Il backend è configurato per accettare richieste da `http://localhost:3000` con credenziali (cookies).
+The backend is configured to accept requests from `http://localhost:3000` with credentials (cookies).
 
-Per modificare, vedi `apps/api/src/main.ts`:
+To modify, see `apps/api/src/main.ts`:
 
 ```typescript
 app.enableCors({
@@ -382,14 +382,14 @@ app.enableCors({
 
 ---
 
-## 📧 Email
+## Email
 
-Le email (verifica account, reset password) vengono attualmente **solo loggate nella console**.
+Emails (account verification, password reset) are currently **only logged to the console**.
 
-Per la produzione, integra un provider email in `apps/api/src/auth/email.service.ts`:
+For production, integrate an email provider in `apps/api/src/auth/email.service.ts`:
 
 ```typescript
-// Esempio con Resend
+// Example with Resend
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -397,42 +397,42 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 await resend.emails.send({
   from: 'noreply@yourdomain.com',
   to: email,
-  subject: 'Verifica la tua email',
-  html: `<a href="${verificationUrl}">Clicca qui</a>`,
+  subject: 'Verify your email',
+  html: `<a href="${verificationUrl}">Click here</a>`,
 });
 ```
 
 ---
 
-## 🧪 Testing
+## Testing
 
-### Test API con curl
+### API Testing with curl
 
 ```bash
 # Health check
 curl http://localhost:3001/api/health
 
-# Registrazione
+# Registration
 curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"name":"Mario","email":"mario@example.com","password":"password123"}'
+  -d '{"name":"John","email":"john@example.com","password":"password123"}'
 
 # Login
 curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -c cookies.txt \
-  -d '{"email":"mario@example.com","password":"password123"}'
+  -d '{"email":"john@example.com","password":"password123"}'
 
-# Utente corrente (con cookie)
+# Current user (with cookie)
 curl http://localhost:3001/api/auth/me -b cookies.txt
 
-# Lista utenti (richiede auth)
+# List users (requires auth)
 curl http://localhost:3001/api/users -b cookies.txt
 ```
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### Build
 
@@ -440,46 +440,46 @@ curl http://localhost:3001/api/users -b cookies.txt
 pnpm build
 ```
 
-### Variabili d'ambiente produzione
+### Production Environment Variables
 
 ```env
 NODE_ENV=production
 DATABASE_URL=postgresql://...
-JWT_SECRET=<chiave-sicura-32+-caratteri>
+JWT_SECRET=<secure-key-32+-characters>
 FRONTEND_URL=https://yourdomain.com
 ```
 
-### Checklist pre-deploy
+### Pre-deploy Checklist
 
-- [ ] Cambia `JWT_SECRET` con una chiave sicura
-- [ ] Configura un email provider reale
-- [ ] Aggiorna CORS con il dominio di produzione
-- [ ] Attiva `secure: true` nei cookie (già configurato per production)
-- [ ] Configura HTTPS
+- [ ] Change `JWT_SECRET` to a secure key
+- [ ] Configure a real email provider
+- [ ] Update CORS with production domain
+- [ ] Enable `secure: true` in cookies (already configured for production)
+- [ ] Configure HTTPS
 
 ---
 
-## 📝 Note
+## Notes
 
-### Token e sessioni
-- L'access token dura **15 minuti**
-- Il refresh token dura **7 giorni** (attivabile con "Ricordami")
-- I token sono salvati in cookie `httpOnly` (non accessibili da JavaScript)
-- I cookie usano `sameSite: 'lax'` per protezione CSRF
+### Tokens and Sessions
+- Access token lasts **15 minutes**
+- Refresh token lasts **7 days** (enabled with "Remember Me")
+- Tokens are stored in `httpOnly` cookies (not accessible by JavaScript)
+- Cookies use `sameSite: 'lax'` for CSRF protection
 
-### Sicurezza
-- Le password sono hashate con **bcrypt** (10 rounds)
-- La verifica email scade dopo 24 ore
-- Il reset password scade dopo 1 ora
-- In produzione i cookie sono `secure` (solo HTTPS)
+### Security
+- Passwords are hashed with **bcrypt** (10 rounds)
+- Email verification expires after 24 hours
+- Password reset expires after 1 hour
+- In production, cookies are `secure` (HTTPS only)
 
-### Flusso registrazione
-1. L'utente compila il form di registrazione
-2. Viene creato l'account nel database
-3. Viene generato un JWT e salvato come cookie
-4. L'utente viene reindirizzato alla home (già loggato)
+### Registration Flow
+1. User fills the registration form
+2. Account is created in the database
+3. A JWT is generated and saved as a cookie
+4. User is redirected to home (already logged in)
 
-### Stato attuale
-- ✅ Autenticazione completa funzionante
-- ⏸️ Verifica email disabilitata (le email vengono solo loggate)
-- ⏸️ Per produzione: integrare un provider email (Resend, SendGrid, etc.)
+### Current Status
+- Authentication fully functional
+- Email verification disabled (emails are only logged)
+- For production: integrate an email provider (Resend, SendGrid, etc.)

@@ -7,6 +7,10 @@
  * Note: For database types, use @monorepo/db instead.
  */
 
+export function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
+
 /**
  * Generic API response wrapper
  */

@@ -4,7 +4,7 @@ import { greet } from "@monorepo/shared";
 @Injectable()
 export class AppService {
   getHello(): string {
-    return greet("from NestJS API");
+    return greet("! Update the greet function to return a string");
   }
 
   getApiInfo(): { message: string; timestamp: string } {
@@ -14,4 +14,3 @@ export class AppService {
     };
   }
 }
-
