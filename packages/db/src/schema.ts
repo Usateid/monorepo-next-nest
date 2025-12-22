@@ -9,15 +9,21 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Enums
-export const roleEnum = pgEnum("role", ["user", "admin"]);
+// Importa UserRole da types.ts (unica fonte di verità)
+import { UserRole } from "./types";
+
+// Postgres enum (automaticamente sincronizzato con UserRole)
+export const roleEnum = pgEnum(
+  "role",
+  Object.values(UserRole) as [string, ...string[]]
+);
 
 // Users table - Solo dati di autenticazione
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  role: roleEnum("role").default("user").notNull(),
+  role: roleEnum("role").default(UserRole.USER).notNull().$type<UserRole>(),
 
   // Email verification
   emailVerified: boolean("email_verified").default(false).notNull(),
@@ -68,18 +74,17 @@ export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
   }),
 }));
 
-// Inferred types
+// Inferred types (Drizzle-specific, for server-side use)
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type NewUserProfile = typeof userProfiles.$inferInsert;
 
-// Tipo combinato per utente con profilo
-export type UserWithProfile = Omit<User, "password"> & {
-  profile: UserProfile | null;
-};
-
-export enum UserRole {
-  USER = "user",
-  ADMIN = "admin",
-}
+// Re-export client-safe types from types.ts
+// This allows importing everything from @monorepo/db on server-side
+export {
+  UserRole,
+  UpdateProfileData,
+  UserProfileData,
+  UserWithProfile,
+} from "./types";

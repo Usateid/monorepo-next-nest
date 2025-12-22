@@ -28,14 +28,11 @@ export default function ForgotPasswordPage() {
     const email = formData.get("email") as string;
 
     try {
-      const res = await fetch(
-        "http://localhost:3001/api/auth/forgot-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
       const data = await res.json();
 

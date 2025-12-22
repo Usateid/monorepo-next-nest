@@ -1,28 +1,9 @@
 import { cookies } from "next/headers";
+import type { UserWithProfile } from "@monorepo/db";
 
 const API_URL = process.env.API_URL || "http://localhost:3001";
 
-export interface UserProfile {
-  id: string;
-  userId: string;
-  name: string;
-  birthDate: string | null;
-  address: string | null;
-  fiscalCode: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  role: "user" | "admin";
-  emailVerified: boolean;
-  createdAt: string;
-  profile: UserProfile | null;
-}
-
-export async function getSession(): Promise<User | null> {
+export async function getSession(): Promise<UserWithProfile | null> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("access_token")?.value;

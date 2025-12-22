@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUsers } from "@/app/actions";
 
@@ -7,7 +8,7 @@ export async function UserList() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Utenti ({users.length})</CardTitle>
+        <CardTitle>Utenti: {users.length}</CardTitle>
       </CardHeader>
       <CardContent>
         {!success && <p className="text-destructive text-sm">{message}</p>}
@@ -18,16 +19,18 @@ export async function UserList() {
         ) : (
           <ul className="flex flex-col gap-3">
             {users.map((user) => (
-              <li
-                key={user.id}
-                className="flex flex-col gap-1 rounded-lg border p-3"
-              >
-                <span className="font-medium">
-                  {user.profile?.name || user.email}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {user.email}
-                </span>
+              <li key={user.id}>
+                <Link
+                  href={`/users/${user.id}`}
+                  className="flex flex-col gap-1 rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer"
+                >
+                  <span className="font-medium">
+                    {user.profile?.name || user.email}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {user.email}
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

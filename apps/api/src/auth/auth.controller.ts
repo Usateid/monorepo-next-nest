@@ -20,6 +20,7 @@ import {
   ResetPasswordDto,
   VerifyEmailDto,
   UpdateProfileDto,
+  ActivateAccountDto,
 } from "./dto/auth.dto";
 import { Public } from "./decorators/public.decorator";
 import { CurrentUser } from "./decorators/current-user.decorator";
@@ -81,6 +82,13 @@ export class AuthController {
   }
 
   @Public()
+  @Post("activate-account")
+  @HttpCode(HttpStatus.OK)
+  async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
+    return this.authService.activateAccount(activateAccountDto);
+  }
+
+  @Public()
   @Post("forgot-password")
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
@@ -122,7 +130,7 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.OK)
   async logout(
-    @CurrentUser() user: Omit<User, "password">,
+    @CurrentUser() user: Omit<UserWithProfile, "password">,
     @Res({ passthrough: true }) res: Response
   ) {
     await this.authService.logout(user.id);
@@ -134,7 +142,7 @@ export class AuthController {
   }
 
   @Get("me")
-  async me(@CurrentUser() user: Omit<User, "password">) {
+  async me(@CurrentUser() user: Omit<UserWithProfile, "password">) {
     const userWithProfile = await this.authService.getUserWithProfile(user.id);
     return { user: userWithProfile };
   }

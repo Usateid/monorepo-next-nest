@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import type { User } from "@/lib/auth";
+import { type UserWithProfile, UserRole } from "@monorepo/db/types";
 
 interface AuthButtonsProps {
-  user: User | null;
+  user: UserWithProfile | null;
 }
 
 export function AuthButtons({ user }: AuthButtonsProps) {
@@ -14,7 +14,7 @@ export function AuthButtons({ user }: AuthButtonsProps) {
 
   async function handleLogout() {
     try {
-      await fetch("http://localhost:3001/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });
@@ -26,16 +26,14 @@ export function AuthButtons({ user }: AuthButtonsProps) {
   }
 
   if (user) {
+    const isAdmin = user.role === UserRole.ADMIN;
+
     return (
       <div className="flex items-center gap-4">
         <span className="text-sm text-muted-foreground">
           Ciao, <strong>{user.profile?.name || "Utente"}</strong>
-          {user.role === "admin" && (
-            <span className="ml-2 rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-              Admin
-            </span>
-          )}
         </span>
+        {isAdmin && <AdminButtons />}
         <Link href="/profile">
           <Button variant="ghost" size="sm">
             Profilo
@@ -55,6 +53,21 @@ export function AuthButtons({ user }: AuthButtonsProps) {
       </Link>
       <Link href="/register">
         <Button>Registrati</Button>
+      </Link>
+    </div>
+  );
+}
+
+function AdminButtons() {
+  return (
+    <div className="flex items-center gap-4">
+      {/* <span className="ml-2 rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+        Admin
+      </span> */}
+      <Link href="/users">
+        <Button variant="ghost" size="sm">
+          Users
+        </Button>
       </Link>
     </div>
   );

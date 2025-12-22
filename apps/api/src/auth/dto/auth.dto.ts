@@ -29,3 +29,15 @@ export class UpdateProfileDto {
   address?: string;
   fiscalCode?: string;
 }
+
+export class InviteUserDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
+
+export class ActivateAccountDto {
+  token: string;
+  password: string;
+}

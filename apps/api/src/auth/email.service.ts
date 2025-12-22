@@ -66,4 +66,27 @@ export class EmailService {
 
     // TODO: Integrate with email provider
   }
+
+  async sendInvitationEmail(email: string, name: string, token: string) {
+    const activationUrl = `${this.frontendUrl}/activate-account?token=${token}`;
+
+    this.logger.log(`
+      ========================================
+      📧 EMAIL DI INVITO
+      ----------------------------------------
+      To: ${email}
+      Name: ${name}
+      ----------------------------------------
+      Ciao ${name}!
+      
+      Sei stato invitato a partecipare al sito.
+      Clicca sul link per attivare il tuo account e impostare la tua password:
+      ${activationUrl}
+      
+      Il link scade tra 24 ore.
+      ========================================
+    `);
+
+    // TODO: Integrate with email provider
+  }
 }

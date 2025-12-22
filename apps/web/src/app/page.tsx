@@ -1,8 +1,9 @@
 import { Suspense } from "react";
-import { UserForm } from "@/components/user-form";
+// import { UserForm } from "@/components/user-form";
 import { UserList } from "@/components/user-list";
 import { AuthButtons } from "@/components/auth-buttons";
 import { getSession } from "@/lib/auth";
+import { UserRole } from "@monorepo/db/types";
 
 export default async function Home() {
   const user = await getSession();
@@ -14,15 +15,11 @@ export default async function Home() {
         <AuthButtons user={user} />
       </header>
 
-      <div className="text-center">
-        <p className="text-lg text-muted-foreground">
-          Next.js + NestJS + Drizzle + Auth
-        </p>
-      </div>
+      <div className="text-center"></div>
 
       {user ? (
-        <div className="flex flex-col gap-6 md:flex-row md:items-start">
-          <UserForm />
+        <div className="flex flex-col items-center gap-6">
+          {/* <UserForm /> */}
           <Suspense
             fallback={
               <div className="w-full max-w-md rounded-lg border p-6">
@@ -30,7 +27,7 @@ export default async function Home() {
               </div>
             }
           >
-            <UserList />
+            {user.role === UserRole.ADMIN && <UserList />}
           </Suspense>
         </div>
       ) : (

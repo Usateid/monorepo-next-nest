@@ -10,13 +10,16 @@ import { ConfigService } from "@nestjs/config";
 import * as bcrypt from "bcrypt";
 import * as crypto from "crypto";
 import { db, users, userProfiles, eq } from "@monorepo/db";
-import type { UserWithProfile } from "@monorepo/db";
+import type { UserWithProfile } from "@monorepo/db/types";
 import {
   RegisterDto,
   ForgotPasswordDto,
   ResetPasswordDto,
   UpdateProfileDto,
+  InviteUserDto,
+  ActivateAccountDto,
 } from "./dto/auth.dto";
+import { UserRole } from "@monorepo/db/types";
 import { EmailService } from "./email.service";
 
 @Injectable()
@@ -394,5 +397,106 @@ export class AuthService {
       .where(eq(userProfiles.userId, userId));
 
     return { ...userWithoutPassword, profile: profile || null };
+  }
+
+  async inviteUser(inviteUserDto: InviteUserDto) {
+    const { firstName, lastName, email, role } = inviteUserDto;
+
+    // Check if user exists
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
+
+    if (existingUser) {
+      throw new ConflictException("Email già registrata");
+    }
+
+    // Generate a random temporary password (user will set their own after verification)
+    const tempPassword = crypto.randomBytes(16).toString("hex");
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Validate and cast role
+    const userRole = Object.values(UserRole).includes(role as UserRole)
+      ? (role as UserRole)
+      : UserRole.USER;
+
+    // Create user (auth data)
+    const [user] = await db
+      .insert(users)
+      .values({
+        email,
+        password: hashedPassword,
+        role: userRole,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires,
+      })
+      .returning();
+
+    // Create user profile (personal data)
+    const fullName = `${firstName} ${lastName}`.trim();
+    const [profile] = await db
+      .insert(userProfiles)
+      .values({
+        userId: user.id,
+        name: fullName,
+      })
+      .returning();
+
+    // Send invitation email
+    await this.emailService.sendInvitationEmail(
+      email,
+      fullName,
+      verificationToken
+    );
+
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      message: "Utente invitato con successo. Riceverà un'email di invito.",
+      user: { ...userWithoutPassword, profile },
+    };
+  }
+
+  async activateAccount(activateAccountDto: ActivateAccountDto) {
+    const { token, password } = activateAccountDto;
+
+    // Find user by verification token
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.emailVerificationToken, token));
+
+    if (!user) {
+      throw new BadRequestException("Token non valido");
+    }
+
+    if (
+      user.emailVerificationExpires &&
+      user.emailVerificationExpires < new Date()
+    ) {
+      throw new BadRequestException("Token scaduto");
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Verify email AND set password
+    await db
+      .update(users)
+      .set({
+        emailVerified: true,
+        emailVerificationToken: null,
+        emailVerificationExpires: null,
+        password: hashedPassword,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
+
+    return { message: "Account attivato con successo. Ora puoi accedere." };
   }
 }
