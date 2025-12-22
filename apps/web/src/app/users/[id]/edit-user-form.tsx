@@ -123,7 +123,6 @@ export function EditUserForm({ initialUser }: EditUserFormProps) {
                 <SelectContent>
                   <SelectItem value={UserRole.USER}>Utente</SelectItem>
                   <SelectItem value={UserRole.ADMIN}>Amministratore</SelectItem>
-                  <SelectItem value={UserRole.TEACHER}>Insegnante</SelectItem>
                 </SelectContent>
               </Select>
             </div>

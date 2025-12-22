@@ -52,7 +52,6 @@ export function InviteUserForm() {
   const roleLabels: Record<UserRole, string> = {
     [UserRole.USER]: "Utente",
     [UserRole.ADMIN]: "Admin",
-    [UserRole.TEACHER]: "Insegnante",
   };
 
   return (
