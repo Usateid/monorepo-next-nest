@@ -34,9 +34,9 @@ export function AuthButtons({ user }: AuthButtonsProps) {
           Ciao, <strong>{user.profile?.name || "Utente"}</strong>
         </span>
         {isAdmin && <AdminButtons />}
-        <Link href="/profile">
+        <Link href="/dashboard">
           <Button variant="ghost" size="sm">
-            Profilo
+            Dashboard
           </Button>
         </Link>
         <Button variant="outline" onClick={handleLogout}>
